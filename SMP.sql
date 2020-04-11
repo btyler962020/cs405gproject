@@ -3,7 +3,7 @@ CREATE DATABASE SMPDB;
 USE SMPDB;
 
 CREATE TABLE Identity (
-	idnum BIGINT AUTO_INCREMENT PRIMARY KEY,
+	idnum INT PRIMARY KEY,
 	handle VARCHAR(100),
 	UNIQUE(handle),
 	password VARCHAR(100),
@@ -15,8 +15,8 @@ CREATE TABLE Identity (
 );
 
 CREATE TABLE Story (
-	sidnum BIGINT AUTO_INCREMENT PRIMARY KEY,
-	idnum BIGINT,
+	sidnum INT PRIMARY KEY,
+	idnum INT,
 	FOREIGN KEY (idnum) REFERENCES Identity(idnum),
 	chapter VARCHAR(100),
 	url VARCHAR(100),
@@ -25,16 +25,16 @@ CREATE TABLE Story (
 );
 
 CREATE TABLE Follows (
-	follower BIGINT,
+	follower INT,
 	FOREIGN KEY (follower) REFERENCES Identity(idnum),
-	followed BIGINT,
+	followed INT,
 	FOREIGN KEY (followed) REFERENCES Identity(idnum),
 	tstamp TIMESTAMP
 );
 
 CREATE TABLE Reprint (
-	rpnum BIGINT AUTO_INCREMENT PRIMARY KEY,
-	idnum BIGINT,
+	rpnum INT PRIMARY KEY,
+	idnum INT,
 	FOREIGN KEY (idnum) REFERENCES Identity(idnum),
 	sidnum INT,
 	FOREIGN KEY (sidnum) REFERENCES Story(sidnum),
@@ -43,10 +43,10 @@ CREATE TABLE Reprint (
 );
 
 CREATE TABLE Block (
-	blknum BIGINT AUTO_INCREMENT PRIMARY KEY,
-	idnum BIGINT,
+	blknum INT PRIMARY KEY,
+	idnum INT,
 	FOREIGN KEY (idnum) REFERENCES Identity(idnum),
-	blocked BIGINT,
+	blocked INT,
 	FOREIGN KEY (blocked) REFERENCES Identity(idnum),
 	tstamp TIMESTAMP
 );
