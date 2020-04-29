@@ -89,13 +89,55 @@ public class DBEngine {
         return dataSource;
     } // setupDataSource()
 
+    public Map<String,String> seeuser(String idnum){
+        //Search and find results given idnum do not return password
+        Map<String,String> myMap = new LinkedHashMap<>();
+        String query = "SELECT handle,fullname,location,email,bdate,joined FROM Identity where idnum = ?";
+        PreparedStatement stmt = null;
+        try{
+            Connection myCon = ds.getConnection();
+            stmt = myCon.prepareStatement(query);
+            stmt.setString(1,idnum);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()){
+                String handle = rs.getString("handle");
+                String fullname = rs.getString("fullname");
+                String location = rs.getString("location");
+                String email = rs.getString("email");
+                String bdate = rs.getString("bdate");
+                String joined = rs.getString("joined");
+                myMap.put("status","1");
+                myMap.put("handle",handle);
+                myMap.put("fullname",fullname);
+                myMap.put("location",location);
+                myMap.put("email",email);
+                myMap.put("bdate",bdate);
+                myMap.put("joined",joined);
+            }
+
+        }
+        catch (Exception ex){
+
+        }
+        return myMap;
+    }
+    public Map<String,String> suggestions(String handle){
+        Map<String,String> myMap = new LinkedHashMap<>();
+        PreparedStatement stmt = null;
+        try{
+            Connection myCon = ds.getConnection();
+            String Query = "";
+        }
+        catch(Exception ex){
+
+        }
+    }
     public Map<String,String> createUser(String handle,String password,String fullname,String location,String email,String bdate,String jdate)
     {
         //This function creates a user and returns the idNum
 
         //Using maps makes converting to json much easier
         Map<String,String> myMap = new LinkedHashMap<>();
-
         //System.out.println(jdate);
         PreparedStatement stmt = null;
         String userId = null;
@@ -126,25 +168,20 @@ public class DBEngine {
                 userId = Integer.toString(rs.getInt(1));
             }
             myMap.put("status",userId);
+            //myCon.close();
 
-
+        }
+        catch(SQLIntegrityConstraintViolationException exs){
+            //An error in SQL constraints
+            myMap.put("status","-2");
+            myMap.put("error","SQL Constraint Exception");
+            return  myMap;
         }
         catch(Exception ex){
             ex.printStackTrace();
-            myMap.put("status","-2");
-            myMap.put("error","SQL Constraint Exception");
-
-
-            /*
-            String rval = '"' + "-2" + '"';
-            rval += ",";
-            rval += '"' + "error" + '"';
-            rval += ":";
-            rval += '"' + ex.getMessage() + '"';
-            rval += "}";
-             */
             return myMap;
         }
+
         return myMap;
     }
     public boolean authUser(String handle,String password){
@@ -153,16 +190,21 @@ public class DBEngine {
         try{
             Connection conn = ds.getConnection();
             String queryString = null;
-            queryString = "SELECT * from Identity where Identity.handle =";
-            queryString += '"' + handle + '"';
-            queryString += " AND Identity.password = ";
-            queryString += '"' + password +'"';
-            System.out.println(queryString);
+            queryString = "SELECT * from Identity where handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1,handle);
+            stmt.setString(2,password);
+            ResultSet rs = stmt.executeQuery();
+            int rowCount = rs.last() ? rs.getRow() : 0;
+            rs.beforeFirst();
+            if (rowCount == 0)
+                return false;
+            return true;
         }
         catch(Exception ex){
-
+            return false;
         }
-        return true;
+
     }
     public Map<String,String> getUsers() {
         Map<String,String> userIdMap = new HashMap<>();
